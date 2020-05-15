@@ -41,6 +41,10 @@ public class ImageLoader : MonoBehaviour
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 "Images"
             );
+            if (!Directory.Exists(imagesFolderPath))
+            {
+                imagesFolderPath = Application.dataPath;
+            }
         }
 
         try
@@ -58,7 +62,7 @@ public class ImageLoader : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError(e);
+            Warning.Show(e.Message);
         }
     }
 
@@ -102,28 +106,31 @@ public class ImageLoader : MonoBehaviour
     private IEnumerator LoadTextureCoroutine(string path, ImageListItem imageListItem)
     {
         //start a request for loading the file
-        UnityWebRequest request = UnityWebRequestTexture.GetTexture(path);
-        yield return request.SendWebRequest();
+        using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
+        {
+            yield return request.SendWebRequest();
 
-        if (request.isNetworkError || request.isHttpError)
-        {
-            Warning.Show(request.error);
-            Debug.LogError(request.error);
-        }
-        else
-        {
-            //get the texture, since the request was successful
-            Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
-            try
+            if (request.isNetworkError || request.isHttpError)
             {
-                imageListItem.SetImage(texture);
+                Warning.Show(request.error);
+                Debug.LogError(request.error);
             }
-            catch (Exception e)
+            else
             {
-                Warning.Show(e.Message);
-                Debug.LogError(e);
+                //get the texture, since the request was successful
+
+                Texture2D texture = DownloadHandlerTexture.GetContent(request);
+                try
+                {
+                    imageListItem.SetImage(texture);
+                }
+                catch (Exception e)
+                {
+                    Warning.Show(e.Message);
+                    Debug.LogError(e);
+                }
+                yield return texture;
             }
-            yield return texture;
         }
     }
 }

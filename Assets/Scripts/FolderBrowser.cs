@@ -29,15 +29,18 @@ public class FolderBrowser : MonoBehaviour
     private void Start()
     {
         SetCurrentPath(PlayerPrefs.GetString(c_CurrentPathKey));
-        if (string.IsNullOrEmpty(_currentPath))
+        if (string.IsNullOrEmpty(_currentPath) || !Directory.Exists(_currentPath))
         {
             //update current path and save it to preferences for use elsewhere
-            SetCurrentPath(
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    "Images"
-                )
+            string startingPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                "Images"
             );
+            if (!Directory.Exists(startingPath))
+            {
+                startingPath = Application.dataPath;
+            }
+            SetCurrentPath(startingPath);
         }
 
         UpdateMenuForPath(_currentPath);
@@ -59,7 +62,7 @@ public class FolderBrowser : MonoBehaviour
 
         //path of the previous directory; for going up a directory
         string prevPath = DirectoryUtils.GetPreviousDirectory(path);
-
+        
         //restore from preferences
         string selectedDirectory = PlayerPrefs.GetString(c_SelectedDirectoryKey);
 
