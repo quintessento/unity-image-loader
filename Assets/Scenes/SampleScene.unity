@@ -2183,6 +2183,7 @@ MonoBehaviour:
   _imageListItemPrefab: {fileID: 5178550927421376476, guid: 0d9396caac575a34d987b4b8b76cc669,
     type: 3}
   _extensionField: {fileID: 422508377}
+  _fakeLoadingProgress: 0
 --- !u!4 &1248730353
 Transform:
   m_ObjectHideFlags: 0

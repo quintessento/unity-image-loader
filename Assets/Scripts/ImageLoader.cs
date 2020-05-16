@@ -16,10 +16,16 @@ public class ImageLoader : MonoBehaviour
     private RectTransform _scrollViewContent = null;
 
     [SerializeField]
+    private InputField _extensionField = null;
+
+    [Header("Prefabs")]
+    [SerializeField]
     private ImageListItem _imageListItemPrefab = null;
 
+    [Header("Settings")]
     [SerializeField]
-    private InputField _extensionField = null;
+    [Tooltip("Waits a little when reporting image download progress to let the progress spinner complete a full circle.")]
+    private bool _fakeLoadingProgress = true;
 
     private ListPool<ImageListItem> _imageListItemsPool = new ListPool<ImageListItem>();
     private List<ImageListItem> _currentImageListItems = new List<ImageListItem>();
@@ -108,7 +114,22 @@ public class ImageLoader : MonoBehaviour
         //start a request for loading the file
         using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
         {
-            yield return request.SendWebRequest();
+            FileInfo fileInfo = new FileInfo(path);
+
+            if (_fakeLoadingProgress)
+            {
+                request.SendWebRequest();
+
+                while (!request.isDone)
+                {
+                    float progress = request.downloadedBytes / (float)fileInfo.Length;
+                    yield return new WaitForSeconds(progress);
+                }
+            }
+            else
+            {
+                yield return request.SendWebRequest();
+            }
 
             if (request.isNetworkError || request.isHttpError)
             {
@@ -118,7 +139,6 @@ public class ImageLoader : MonoBehaviour
             else
             {
                 //get the texture, since the request was successful
-
                 Texture2D texture = DownloadHandlerTexture.GetContent(request);
                 try
                 {

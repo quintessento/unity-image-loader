@@ -15,9 +15,11 @@ public class FolderBrowser : MonoBehaviour
     [SerializeField]
     private RectTransform _scrollViewContent = null;
     [SerializeField]
-    private FolderListItem _folderListItemPrefab = null;
-    [SerializeField]
     private Text _currentPathLabel = null;
+
+    [Header("Prefabs")]
+    [SerializeField]
+    private FolderListItem _folderListItemPrefab = null;
 
     private readonly ListPool<FolderListItem> _folderListItemsPool = new ListPool<FolderListItem>();
     private readonly List<FolderListItem> _currentFolderListItems = new List<FolderListItem>();
